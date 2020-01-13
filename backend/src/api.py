@@ -39,14 +39,6 @@ def get_drinks():
         # return internal server error
         abort(500)
 
-'''
-@TODO implement endpoint
-    GET /drinks-detail
-        it should require the 'get:drinks-detail' permission
-        it should contain the drink.long() data representation
-    returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
-        or appropriate status code indicating reason for failure
-'''
 @app.route('/drinks-detail')
 @requires_auth('get:drinks-detail')
 def get_drinks_detail(token):
@@ -62,19 +54,32 @@ def get_drinks_detail(token):
             'drinks': formatted_drinks,
         }), 200
 
-    except:
+    except Exception:
         abort(500)
 
 
-'''
-@TODO implement endpoint
-    POST /drinks
-        it should create a new row in the drinks table
-        it should require the 'post:drinks' permission
-        it should contain the drink.long() data representation
-    returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
-        or appropriate status code indicating reason for failure
-'''
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def create_drink(jwt):
+    """creates a new drink"""
+    try:
+        # get response data
+        data = request.get_json()
+        title = data.get('title', None)
+        recipe = data.get('recipe', None)
+
+        # inserts a new drink
+        drink = Drink(title=title, recipe=json.dumps(recipe))
+        drink.insert()
+
+        # return success response
+        return jsonify({
+            'success': True,
+            'drinks': drink.long(),
+        }), 200
+    except Exception as e:
+        print(e)
+        abort(422)
 
 
 '''
