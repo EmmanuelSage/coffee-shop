@@ -77,22 +77,41 @@ def create_drink(jwt):
             'success': True,
             'drinks': drink.long(),
         }), 200
-    except Exception as e:
-        print(e)
+    except Exception:
         abort(422)
 
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def patch_drink(jwt, drink_id):
+    """updates a drink in database"""
 
-'''
-@TODO implement endpoint
-    PATCH /drinks/<id>
-        where <id> is the existing model id
-        it should respond with a 404 error if <id> is not found
-        it should update the corresponding row for <id>
-        it should require the 'patch:drinks' permission
-        it should contain the drink.long() data representation
-    returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
-        or appropriate status code indicating reason for failure
-'''
+    # get response data from client
+    data = request.get_json()
+    title = data.get('title', None)
+
+    # query for drink by id
+    drink = Drink.query.filter_by(id=drink_id).one_or_none()
+
+    # returns a 404 error if drink is not found
+    if drink is None:
+        abort(404)
+
+    # returns a 400 error if no title is sent
+    if title is None:
+        abort(400)
+
+    try:
+        # update drink in the database
+        drink.title = title
+        drink.update()
+
+        # return success response
+        return jsonify({
+            'success': True,
+            'drinks': [drink.long()],
+        })
+    except Exception:
+        abort(422)
 
 
 '''
