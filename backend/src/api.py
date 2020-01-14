@@ -16,10 +16,9 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
-## ROUTES
-
+# ROUTES
 @app.route('/drinks')
 def get_drinks():
     """Get all drinks public endpoint"""
@@ -38,6 +37,7 @@ def get_drinks():
     except Exception:
         # return internal server error
         abort(500)
+
 
 @app.route('/drinks-detail')
 @requires_auth('get:drinks-detail')
@@ -80,6 +80,7 @@ def create_drink(jwt):
     except Exception:
         abort(422)
 
+
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
 def patch_drink(jwt, drink_id):
@@ -113,6 +114,7 @@ def patch_drink(jwt, drink_id):
     except Exception:
         abort(422)
 
+
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(jwt, drink_id):
@@ -138,14 +140,15 @@ def delete_drink(jwt, drink_id):
         abort(422)
 
 
-## Error Handling
+# Error Handling
 @app.errorhandler(422)
 def unprocessable(error):
     return jsonify({
-            "success": False,
-            "error": 422,
-            "message": "unprocessable"
-            }), 422
+        "success": False,
+        "error": 422,
+        "message": "unprocessable"
+        }), 422
+
 
 @app.errorhandler(404)
 def resource_not_found(error):
@@ -155,6 +158,7 @@ def resource_not_found(error):
         "message": "resource not found"
     }), 404
 
+
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify({
@@ -163,6 +167,7 @@ def bad_request(error):
         "message": "bad request"
     }), 400
 
+
 @app.errorhandler(500)
 def internal_server_error(error):
     return jsonify({
@@ -170,6 +175,7 @@ def internal_server_error(error):
         "error": 500,
         "message": "internal server error"
     }), 500
+
 
 @app.errorhandler(AuthError)
 def handle_auth_error(exception):
